@@ -15,16 +15,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import com.vp.list.viewmodel.SearchResult;
 import com.vp.list.viewmodel.ListViewModel;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class ListFragment extends Fragment implements GridPagingScrollListener.LoadMoreItemsListener, ListAdapter.OnItemClickListener {
     public static final String TAG = "ListFragment";
@@ -41,6 +48,12 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
     private ProgressBar progressBar;
     private TextView errorTextView;
     private String currentQuery = "Interview";
+
+    /*
+     * 4. Some refreshments - Añadido un botón que sólo aparece cuando hay un error y desaparece
+     * al cargarse la lista
+     */
+    private Button reloadData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +76,12 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         progressBar = view.findViewById(R.id.progressBar);
         errorTextView = view.findViewById(R.id.errorText);
 
+        /*
+         * 4. Some refreshments - Añadido un botón que sólo aparece cuando hay un error y desaparece
+         * al cargarse la lista
+         */
+        reloadData = view.findViewById(R.id.reloadButton);
+
         if (savedInstanceState != null) {
             currentQuery = savedInstanceState.getString(CURRENT_QUERY);
         }
@@ -76,6 +95,11 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         });
         listViewModel.searchMoviesByTitle(currentQuery, 1);
         showProgressBar();
+
+        /*
+         * 4. Some refreshments - El listener del boton, hace una nueva llamada al API
+         */
+        reloadData.setOnClickListener(v -> listViewModel.searchMoviesByTitle(currentQuery, 1));
     }
 
     private void initBottomNavigation(@NonNull View view) {
@@ -110,11 +134,23 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
     }
 
     private void showList() {
+        /*
+         * 4. Some refreshments - Se oculta si está visible
+         */
+        if (reloadData.getVisibility() == View.VISIBLE) {
+            reloadData.setVisibility(View.GONE);
+        }
+
         viewAnimator.setDisplayedChild(viewAnimator.indexOfChild(recyclerView));
     }
 
     private void showError() {
         viewAnimator.setDisplayedChild(viewAnimator.indexOfChild(errorTextView));
+
+        /*
+         * 4. Some refreshments - Aparece al recibir un error
+         */
+        reloadData.setVisibility(View.VISIBLE);
     }
 
     private void handleResult(@NonNull ListAdapter listAdapter, @NonNull SearchResult searchResult) {
@@ -164,6 +200,11 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
 
     @Override
     public void onItemClick(String imdbID) {
-        //TODO handle click events
+        /*
+         * 2. The Lost Event - Redirigir a la página de detalle con el id correcto
+         */
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("app://movies/detail?imdbID=" + imdbID));
+        intent.setPackage(requireContext().getPackageName());
+        startActivity(intent);
     }
 }

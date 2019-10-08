@@ -4,6 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/reloadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="150dp"
+        android:visibility="gone"
+        android:text="@string/reload_list" />
+
     <ViewAnimator
         android:id="@+id/viewAnimator"
         android:layout_width="match_parent"

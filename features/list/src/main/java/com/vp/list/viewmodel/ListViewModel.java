@@ -49,6 +49,11 @@ public class ListViewModel extends ViewModel {
 
                 if (result != null) {
                     aggregatedItems.addAll(result.getSearch());
+
+                    /*
+                     * 1. The Wrong State - Hay que mandar el resultado a la vista
+                     */
+                    liveData.setValue(SearchResult.success(aggregatedItems, aggregatedItems.size()));
                 }
             }
 

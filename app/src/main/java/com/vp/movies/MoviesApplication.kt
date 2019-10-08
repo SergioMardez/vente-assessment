@@ -2,6 +2,7 @@ package com.vp.movies
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import com.vp.movies.di.DaggerAppComponent
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector

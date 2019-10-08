@@ -19,6 +19,11 @@ import dagger.android.support.HasSupportFragmentInjector;
 public class MovieListActivity extends AppCompatActivity implements HasSupportFragmentInjector {
     private static final String IS_SEARCH_VIEW_ICONIFIED = "is_search_view_iconified";
 
+    /*
+     * 3. The Lost State. Esta variable almacena el campo de búsqueda
+     */
+    private CharSequence queryInput;
+
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingActivityInjector;
     private SearchView searchView;
@@ -37,6 +42,14 @@ public class MovieListActivity extends AppCompatActivity implements HasSupportFr
                     .commit();
         } else {
             searchViewExpanded = savedInstanceState.getBoolean(IS_SEARCH_VIEW_ICONIFIED);
+
+
+            /*
+             * 3. The Lost State. Aqui se comprueba si el menú de búsqueda está expandido y hay que recuperar el valor
+             */
+            if (!searchViewExpanded) {
+                queryInput = savedInstanceState.getCharSequence("Query");
+            }
         }
     }
 
@@ -49,6 +62,12 @@ public class MovieListActivity extends AppCompatActivity implements HasSupportFr
         searchView = (SearchView) menuItem.getActionView();
         searchView.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         searchView.setIconified(searchViewExpanded);
+
+        /*
+         * 3. The Lost State. Se coloca el valor a buscar
+         */
+        searchView.setQuery(queryInput, false);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -59,6 +78,7 @@ public class MovieListActivity extends AppCompatActivity implements HasSupportFr
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                queryInput = newText;
                 return false;
             }
         });
@@ -70,6 +90,7 @@ public class MovieListActivity extends AppCompatActivity implements HasSupportFr
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(IS_SEARCH_VIEW_ICONIFIED, searchView.isIconified());
+        outState.putCharSequence("Query", queryInput);
     }
 
     @Override
